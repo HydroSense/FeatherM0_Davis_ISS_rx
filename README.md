@@ -1,6 +1,6 @@
 Intro
 -----
-Source modified from kobuki's VPTools to run on the Adafruit Feather M0 board by Alan Marchiori.
+Source modified from [kobuki's VPTools](https://github.com/kobuki/VPTools) to run on the Adafruit Feather M0 board by Alan Marchiori.
 
 The main modification was to poll the radio rather than use a timer because timers the M0 are not yet well supported by Arduino.
 
