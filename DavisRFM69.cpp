@@ -2,6 +2,8 @@
 // compatibility with the frequency hopped, spread spectrum signals from a Davis Instrument
 // wireless Integrated Sensor Suite (ISS)
 //
+// Modified for the Adafruit feather M0 by Alan Marchiori 2016 amm042@bucknell.edu.
+//
 // This is part of the DavisRFM69 library from https://github.com/dekay/DavisRFM69
 // (C) DeKay 2014 dekaymail@gmail.com
 //
@@ -116,7 +118,7 @@ void DavisRFM69::initialize(byte freqBand)
 
   do writeReg(REG_SYNCVALUE1, 0xaa); while (readReg(REG_SYNCVALUE1) != 0xaa);
   do writeReg(REG_SYNCVALUE1, 0x55); while (readReg(REG_SYNCVALUE1) != 0x55);
-  
+
   for (byte i = 0; CONFIG[i][0] != 255; i++)
     writeReg(CONFIG[i][0], CONFIG[i][1]);
 
@@ -139,13 +141,13 @@ void DavisRFM69::initialize(byte freqBand)
 
   //Timer1.initialize(2000L); // periodical interrupts every 2 ms for missed packet detection and other checks
   //Timer1.attachInterrupt(DavisRFM69::handleTimerInt, 0);
-  
+
 /*
   Serial.println("About to enable timer.");
   Serial.flush();
   delay(500);
 
-  enum status_code sc = zt.configure (TC_CLOCK_PRESCALER_DIV8, 
+  enum status_code sc = zt.configure (TC_CLOCK_PRESCALER_DIV8,
   				 TC_COUNTER_SIZE_16BIT,
   				 TC_WAVE_GENERATION_NORMAL_FREQ
   				 );
@@ -210,7 +212,7 @@ void DavisRFM69::loop(){
 		stations[curStation].lostPackets ++;
 		stations[curStation].lastRx += stations[curStation].interval;
 		stations[curStation].channel = nextChannel(stations[curStation].channel);
-		
+
 		// lost a station
 		if (stations[curStation].lostPackets > RESYNC_THRESHOLD){
 //#ifdef DAVISRFM69_DEBUG
@@ -218,9 +220,9 @@ void DavisRFM69::loop(){
 			Serial.print(": station ");
 			Serial.print(stations[curStation].id);
 			Serial.println(" is lost.");
-//#endif			
+//#endif
 			stations[curStation].lostPackets = 0;
-			stations[curStation].interval = 0;					
+			stations[curStation].interval = 0;
 
         	lostStations++;
         	stationsFound--;
@@ -242,7 +244,7 @@ void DavisRFM69::loop(){
   	// interval is filled in once we discover a station
   	if (stations[i].interval > 0){
 	  	if (difftime(stations[i].lastRx + stations[i].interval, micros()) < ( (1+stations[i].lostPackets)*TUNEIN_USEC)){
-#ifdef DAVISRFM69_DEBUG	  		
+#ifdef DAVISRFM69_DEBUG
 	  		Serial.print(micros());
 	  		Serial.print(": tune to station ");
 			Serial.print(stations[i].id);
@@ -255,25 +257,25 @@ void DavisRFM69::loop(){
 	  		// we are now set to receive from this station.
 	  		mode = SM_RECEIVING;
 	  		curStation = i;
-	  		return;	  	
-	  	} 
+	  		return;
+	  	}
   	}
   }
 
-  // if no transmitter is about to transmit, check for any 
-  // station that we are not synchonized with, if there are 
+  // if no transmitter is about to transmit, check for any
+  // station that we are not synchonized with, if there are
   // any stations not synchronized, turn on the receiver and
   // hope we get lucky.
   bool all_sync = true;
-  for (i = 0; i < numStations; i++) {  	
-  	// unknown stations will have interval of zero, the radio interrupt will 
+  for (i = 0; i < numStations; i++) {
+  	// unknown stations will have interval of zero, the radio interrupt will
   	// fill this in if we receive a packet from the given station.
   	if (stations[i].interval == 0){
   		mode = SM_SEARCHING;
   		all_sync = false;
   		if (stations[i].syncBegan == 0){
   			// we have never tried to sync to this station
-#ifdef DAVISRFM69_DEBUG  			
+#ifdef DAVISRFM69_DEBUG
   			Serial.print(micros());
   			Serial.print(": begin sync to station ");
   			Serial.print(stations[i].id);
@@ -284,10 +286,10 @@ void DavisRFM69::loop(){
   			stations[i].progress = 0;
   			setChannel(stations[i].channel);
   		}else if (difftime(micros(), stations[i].syncBegan) > DISCOVERY_STEP){
-  			// we tried and failed to sync, try the next channel  			
+  			// we tried and failed to sync, try the next channel
 
-			stations[i].channel = nextChannel(stations[i].channel);		
-#ifdef DAVISRFM69_DEBUG			
+			stations[i].channel = nextChannel(stations[i].channel);
+#ifdef DAVISRFM69_DEBUG
 			Serial.print(micros());
   			Serial.print(": sync fail, begin sync to station ");
   			Serial.print(stations[i].id);
@@ -306,10 +308,10 @@ void DavisRFM69::loop(){
   				Serial.print(micros());
 	  			Serial.print(": listen progress ");
 	  			Serial.print(p);
-	  			Serial.println("\%");	 
-	  			stations[i].progress = p;			
+	  			Serial.println("\%");
+	  			stations[i].progress = p;
 	  		}
-#endif	  		
+#endif
   			break;
   		}
   	}
@@ -321,10 +323,10 @@ void DavisRFM69::loop(){
   	// if we got here, no stations are about to TX and all stations are in sync,
   	// we can disable our radio to save power.
   	if (_mode != RF69_MODE_SLEEP){
-#ifdef DAVISRFM69_DEBUG  	  
+#ifdef DAVISRFM69_DEBUG
   	  Serial.print(micros());
   	  Serial.println(": Nothing to do, going to sleep");
-#endif  	  
+#endif
   	  setMode(RF69_MODE_SLEEP);
   	}
   }
@@ -336,7 +338,7 @@ void DavisRFM69::handleTimerInt() {
 
   uint32_t lastRx = micros();
   bool readjust = false;
-  
+
   int_ticks ++;
   if (stations[curStation].interval > 0
 	  && stations[curStation].lastRx + stations[curStation].interval - lastRx < DISCOVERY_GUARD
@@ -430,7 +432,7 @@ void DavisRFM69::handleRadioInt() {
       stations[stIx].interval = (41 + id) * 1000000 / 16; // Davis' official tx interval in us
 
       stationsFound++;
-#ifdef DAVISRFM69_DEBUG      
+#ifdef DAVISRFM69_DEBUG
       Serial.print("found station ");
       Serial.print(stIx);
       Serial.print(" interval ");
@@ -438,14 +440,14 @@ void DavisRFM69::handleRadioInt() {
 #endif
       if (lostStations > 0) lostStations--;
     }
-    
-    packets++;	
+
+    packets++;
     if (stations[stIx].active) {
 
 	  stations[stIx].packets++;
       fifo.queue((byte*)DATA, CHANNEL, -RSSI, FEI, stations[curStation].lastSeen > 0 ? lastRx - stations[curStation].lastSeen : 0);
     }
-	
+
 	stations[stIx].earlyAmt = difftime(lastRx, stations[stIx].recvBegan);
     stations[stIx].lostPackets = 0;
     stations[stIx].lastRx = stations[stIx].lastSeen = lastRx;
@@ -647,11 +649,11 @@ void DavisRFM69::setMode(byte newMode)
   if (_mode < COUNT_RF69_MODES){
   	rfm69_mode_counts[_mode] += difftime(micros(), rfm69_mode_timer);
   	rfm69_mode_timer = micros();
-#ifdef DAVISRFM69_DEBUG  
+#ifdef DAVISRFM69_DEBUG
 	  Serial.print(RFM69_MODE_STRINGS[_mode]);
 	  Serial.print(" -> ");
 	  Serial.println(RFM69_MODE_STRINGS[newMode]);
-#endif	  
+#endif
   }else{
   		Serial.println("INVALID MODE CHANGE.");
   }
