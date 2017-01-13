@@ -197,46 +197,45 @@ void DavisRFM69::loop(){
 
   // first see if we have tuned into receive a station previously and failed to actually receive a packet
   if (mode == SM_RECEIVING){
-
   	// packet was lost
   	if (difftime(micros(), stations[curStation].recvBegan) > (1+stations[curStation].lostPackets)*(LATE_PACKET_THRESH + TUNEIN_USEC)){
-//#ifdef DAVISRFM69_DEBUG
-		Serial.print(micros());
-		Serial.print(": missed packet from station ");
-		Serial.print(stations[curStation].id);
-		Serial.print(" channel ");
-		Serial.println(stations[curStation].channel);
-//#endif
-		lostPackets++;
-		stations[curStation].missedPackets ++;
-		stations[curStation].lostPackets ++;
-		stations[curStation].lastRx += stations[curStation].interval;
-		stations[curStation].channel = nextChannel(stations[curStation].channel);
+  //#ifdef DAVISRFM69_DEBUG
+  		Serial.print(micros());
+  		Serial.print(": missed packet from station ");
+  		Serial.print(stations[curStation].id);
+  		Serial.print(" channel ");
+  		Serial.println(stations[curStation].channel);
+  //#endif
+  		lostPackets++;
+  		stations[curStation].missedPackets ++;
+  		stations[curStation].lostPackets ++;
+  		stations[curStation].lastRx += stations[curStation].interval;
+  		stations[curStation].channel = nextChannel(stations[curStation].channel);
 
-		// lost a station
-		if (stations[curStation].lostPackets > RESYNC_THRESHOLD){
-//#ifdef DAVISRFM69_DEBUG
-			Serial.print(micros());
-			Serial.print(": station ");
-			Serial.print(stations[curStation].id);
-			Serial.println(" is lost.");
-//#endif
-			stations[curStation].lostPackets = 0;
-			stations[curStation].interval = 0;
+  		// lost a station
+  		if (stations[curStation].lostPackets > RESYNC_THRESHOLD){
+  //#ifdef DAVISRFM69_DEBUG
+  			Serial.print(micros());
+  			Serial.print(": station ");
+  			Serial.print(stations[curStation].id);
+  			Serial.println(" is lost.");
+  //#endif
+  			stations[curStation].lostPackets = 0;
+  			stations[curStation].interval = 0;
 
-        	lostStations++;
-        	stationsFound--;
-		}
+          	lostStations++;
+          	stationsFound--;
+  		}
 
-		curStation = -1;
-		mode = SM_IDLE;
-		setMode(RF69_MODE_STANDBY);
-	} else {
-		// waiting to receive and it hasn't timed out yet.
-		// do nothing.
-		return;
-	}
-  }
+  		curStation = -1;
+  		mode = SM_IDLE;
+  		setMode(RF69_MODE_STANDBY);
+	  } else {
+  		// waiting to receive and it hasn't timed out yet.
+  		// do nothing.
+  		return;
+	  }
+  } //if (mode == SM_RECEIVING)
 
   // next check for any station that's about to transmit
   // if found, tune in
@@ -247,11 +246,11 @@ void DavisRFM69::loop(){
 #ifdef DAVISRFM69_DEBUG
 	  		Serial.print(micros());
 	  		Serial.print(": tune to station ");
-			Serial.print(stations[i].id);
-			Serial.print(" channel ");
-			Serial.println(stations[i].channel);
+  			Serial.print(stations[i].id);
+  			Serial.print(" channel ");
+  			Serial.println(stations[i].channel);
 #endif
-			stations[i].recvBegan = micros();
+			  stations[i].recvBegan = micros();
 	  		setChannel(stations[i].channel);
 
 	  		// we are now set to receive from this station.
@@ -288,9 +287,9 @@ void DavisRFM69::loop(){
   		}else if (difftime(micros(), stations[i].syncBegan) > DISCOVERY_STEP){
   			// we tried and failed to sync, try the next channel
 
-			stations[i].channel = nextChannel(stations[i].channel);
+			  stations[i].channel = nextChannel(stations[i].channel);
 #ifdef DAVISRFM69_DEBUG
-			Serial.print(micros());
+			  Serial.print(micros());
   			Serial.print(": sync fail, begin sync to station ");
   			Serial.print(stations[i].id);
   			Serial.print(" channel ");
@@ -299,7 +298,7 @@ void DavisRFM69::loop(){
   			stations[i].syncBegan = micros();
   			stations[i].progress = 0;
   			setChannel(stations[i].channel);
-  		} else{
+  		} else {
   			// we're waiting to hear from this station, don't tune away!
 #ifdef DAVISRFM69_DEBUG
   			byte p = difftime(micros(), stations[i].syncBegan) / (DISCOVERY_STEP/100);
@@ -598,8 +597,12 @@ void DavisRFM69::sendFrame(const void* buffer)
 
 void DavisRFM69::setChannel(byte channel)
 {
-	//Serial.print("CH->>");
-	//Serial.println(channel);
+
+  #ifdef DAVISRFM69_DEBUG
+  Serial.print("CH->>");
+	Serial.println(channel);
+  #endif
+
   CHANNEL = channel;
   if (CHANNEL > bandTabLengths[band] - 1) CHANNEL = 0;
   writeReg(REG_FRFMSB, pgm_read_byte(&bandTab[band][CHANNEL][0]));

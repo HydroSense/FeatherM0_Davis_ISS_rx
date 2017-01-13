@@ -26,7 +26,8 @@ void setup() {
   Serial.begin(SERIAL_BAUD);
   delay(1000);
   
-  pinMode(LED, OUTPUT);
+  pinMode(LED, OUTPUT); 
+  digitalWrite(LED, LOW);
   
   radio.setStations(stations, 1);
   radio.initialize(FREQ_BAND_US);
@@ -64,8 +65,13 @@ void loop() {
     decode_packet(radio.fifo.dequeue());
   }
 
-  if ((radio.mode == SM_RECEIVING) || (radio.mode == SM_SEARCHING)){
+  if (radio.mode == SM_RECEIVING) {
     digitalWrite(LED, HIGH);
+  } else if (radio.mode == SM_SEARCHING){
+    Blink(LED, 15);
+    Blink(LED, 15);
+    Blink(LED, 15);
+    delay(100);
   }else{
     digitalWrite(LED, LOW);
   }
