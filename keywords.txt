@@ -1,0 +1,30 @@
+#######################################
+# Syntax Coloring Map
+#######################################
+# Class
+#######################################
+
+DavisRFM69	KEYWORD1	GSM
+GSMVoiceCall	KEYWORD1	GSMVCSConstructor
+GSM_SMS	KEYWORD1	GSMSMSConstructor
+GPRS	KEYWORD1	GPRSConstructor
+GSMClient	KEYWORD1	GSMClientConstructor
+GSMServer	KEYWORD1	GSMServerConstructor
+GSMModem	KEYWORD1	GSMModemConstructor
+GSMScanner	KEYWORD1	GSMScannerConstructor
+GSMPIN	KEYWORD1	GSMPINConstructor
+GSMBand KEYWORD1	GSMBandConstructor
+
+#######################################
+# Methods and Functions
+#######################################
+
+
+#######################################
+# Constants
+#######################################
+
+SM_IDLE	LITERAL1
+SM_SEARCHING	LITERAL1
+SM_SYNCHRONIZED	LITERAL1
+SM_RECEIVING	LITERAL1
