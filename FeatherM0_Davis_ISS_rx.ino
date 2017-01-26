@@ -197,9 +197,10 @@ void decode_packet(RadioData* rd) {
       break;
 
     case VP2P_TEMP:
-      if (packet[3] == 0xff) {
-        print_value("temp", -100, F(", "));
-      } else {
+      //if (packet[3] == 0xff) {
+//        print_value("temp", -100, F(", "));
+      //} else {
+      {
         //val = (int)packet[3] << 4 | packet[4] >> 4;
         //val = (packet[3]* 256 + packet[4]) / 160;
         val = ((int16_t)((packet[3]<<8) | packet[4])) / 16;
